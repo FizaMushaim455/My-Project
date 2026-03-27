@@ -16,12 +16,14 @@ import numpy as np
 
 from src.config.settings import (
     CAMERA_INDEX,
-    CAPTURE_INTERVAL,
+    CLAHE_CLIP_LIMIT,
+    CLAHE_GRID_SIZE,
     IMG_SIZE,
     LABELS_DICT,
     MIN_VALUE,
     MODEL_PATH,
     ROI,
+    STABILITY_THRESHOLD,
 )
 from src.models.model_utils import load_model
 from src.utils.image_processing import preprocess_frame
@@ -36,7 +38,7 @@ def run_realtime(
     min_value: int = MIN_VALUE,
     roi: tuple = ROI,
     camera_index: int = CAMERA_INDEX,
-    capture_interval: int = CAPTURE_INTERVAL,
+    stability_threshold: int = STABILITY_THRESHOLD,
 ) -> str:
     """Open the webcam and perform real-time ASL gesture recognition.
 
@@ -74,9 +76,11 @@ def run_realtime(
     x1, y1, x2, y2 = roi
     roi_color = (0, 255, 0)
 
-    count: int = 0
-    prev_char: str = " "
+    # Stability & Capture Logic
     recognised_string: str = ""
+    stability_buffer: list[str] = []
+    stability_threshold: int = 8  # Frames of consistent detection needed
+    
     start_time = time.time()
 
     try:
@@ -90,38 +94,48 @@ def run_realtime(
             elapsed = int(time.time() - start_time)
             timer_text = time.strftime("%H:%M:%S", time.gmtime(elapsed))
 
-            # Draw ROI rectangle
-            cv2.rectangle(frame, (x1, y1), (x2, y2), roi_color, 2)
-
             # Pre-process frame
             thresholded, model_input = preprocess_frame(frame, roi, img_size, min_value)
 
-            # Predict every frame; capture letter every capture_interval frames
+            # Predict current frame
             result = model.predict(model_input, verbose=0)
             label_idx = int(np.argmax(result, axis=1)[0])
+            current_sign = labels_dict[label_idx]
 
-            count += 1
+            # Update stability buffer
+            if not stability_buffer or stability_buffer[-1] == current_sign:
+                stability_buffer.append(current_sign)
+            else:
+                stability_buffer = [current_sign]  # Reset if sign changes
 
-            # Update frame counter display (visual cue for next capture)
-            progress = (count % 300) // 100  # legacy counter
-            cv2.putText(
-                frame,
-                f"Next in: {capture_interval - count}",
-                (x1, y2 + 30),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 255, 255),
-                1,
-            )
+            # Calculate stability progress (0.0 to 1.0)
+            stability_ratio = min(len(stability_buffer) / stability_threshold, 1.0)
 
-            if count >= capture_interval:
-                count = 0  # reset
-                prev_char = labels_dict[label_idx]
-                if label_idx == 0:
-                    recognised_string += " "
+            # Draw ROI and overlays
+            cv2.rectangle(frame, (x1, y1), (x2, y2), roi_color, 2)
+            
+            # Draw Stability Bar (under ROI)
+            bar_width = x2 - x1
+            bar_height = 10
+            cv2.rectangle(frame, (x1, y2 + 5), (x2, y2 + 5 + bar_height), (50, 50, 50), -1)
+            cv2.rectangle(frame, (x1, y2 + 5), (x1 + int(bar_width * stability_ratio), y2 + 5 + bar_height), (0, 255, 0), -1)
+
+            # Capture logic: when threshold is reached
+            if len(stability_buffer) >= stability_threshold:
+                # Capture the letter
+                if label_idx == 0:  # Code for space
+                    if not recognised_string.endswith(" "):
+                        recognised_string += " "
                 else:
-                    recognised_string += prev_char
-                logger.debug("Captured: '%s'", prev_char)
+                    recognised_string += current_sign
+                
+                logger.debug("Locked in: '%s' | String: '%s'", current_sign, recognised_string)
+                
+                # Clear buffer to wait for the next sign (prevent multiple captures of same hold)
+                # Usually we want a "cooldown" or wait for a change
+                stability_buffer = [] 
+                # Optional: display a flash or sound?
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 255, 255), 5)
 
             # --- UI Overlays ---
             # Timer (Top Left)
@@ -132,22 +146,22 @@ def run_realtime(
             cv2.putText(frame, "Esc: Stop | Backspace: Undo | C: Clear", (20, frame.shape[0] - 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
-            # Current Letter
+            # Current Guess (Floaty)
             cv2.putText(
                 frame,
-                f"Sign: {labels_dict[label_idx]}",
-                (x1, y1 - 10),
+                f"Detecting: {current_sign}",
+                (x1, y1 - 15),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
-                (255, 255, 255),
+                0.7,
+                (255, 255, 0),
                 2,
             )
             
             # Recognised Sequence
             cv2.putText(
                 frame,
-                f"Text: {recognised_string}",
-                (x2 + 20, y1 + 30),
+                f"Sentence: {recognised_string}",
+                (x1, y2 + 45),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.8,
                 (0, 255, 0),

@@ -1,59 +1,58 @@
-# ASL Sign-To-Speech Conversion
+# 🖐️ ASL Sign-To-Speech Conversion (Geometric Edition)
 
-A real-time American Sign Language (ASL) gesture recognition system that converts hand signs into English text and provides audible **Urdu speech** output.
+A high-precision, real-time American Sign Language (ASL) recognition system that converts hand gestures into typed text and audible **Urdu speech**.
 
-## Overview
+---
 
-This project uses a Deep Learning (CNN) model to recognize 27 ASL classes (letters A-Z and digit 0) from a live webcam feed. Once a sequence of signs is captured, it is translated into Urdu and spoken using a text-to-speech engine.
+## 👨‍💻 Developed By: **Fiza Mushaim**
+## 📜 AG Number: **2023-ag-9944**
 
-## Features
+---
 
-- **Real-time Detection**: Fast and accurate hand gesture recognition via webcam.
-- **Urdu Translation**: Built-in mapping for common English words to Urdu.
-- **Voice Output**: Audible speech synthesis in Urdu.
-- **Modular Pipeline**: Clean separation of data, model, and application logic.
+## 🚀 Step-by-Step Setup Guide
 
-## Getting Started
+Follow these steps to get the project running on your machine:
 
 ### 1. Prerequisites
+Ensure you have **Python 3.10+** installed. This project is optimized for Python 3.13.
 
-Ensure you have Python installed. Install the required dependencies:
-
+### 2. Install Dependencies
+Open your terminal inside the project folder (`My-Project`) and run:
 ```bash
-pip install -r requirements.txt
+pip install mediapipe opencv-python tensorflow gTTS playsound
 ```
+*(Note: MediaPipe is used for the high-end 3D joint tracking)*
 
-### 2. Run the Application
-
-Launch the real-time recognition tool:
-
+### 3. Launch the Application
+Run the main recognition script:
 ```bash
 python main.py run
 ```
+---
 
-- Position your hand inside the green square.
-- The system will detect letters based on your gestures.
-- A **Next in: X** countdown shows you when the current sign will be captured.
-- A **session timer** (REC 00:00:00) is displayed in the top-left corner.
+## 💎 Features & Capabilities
 
-### Keyboard Controls
+-   **PRO Geometric Engine**: No training required! It uses 3D hand anatomy to recognize signs instantly.
+-   **Steady & Robust**: Works perfectly even on plain white backgrounds and varying light.
+-   **Digital Skeleton**: Displays a real-time green skeleton over your hand joints.
+-   **Urdu Voice Output**: Converts the recognized English letters into spoken Urdu.
+
+---
+
+## ⌨️ Controls & Usage
 
 | Key | Action |
 | --- | --- |
-| **Esc** | Stop and synthesize Urdu speech |
-| **Backspace** | **Undo** (remove the last captured letter) |
-| **C** | **Clear** (delete all captured text) |
+| **Esc** | Stop the session and speak out in Urdu. |
+| **Backspace** | **Undo** (remove the last captured character). |
+| **C** | **Clear** (delete all captured text). |
 
-### 3. Training (Optional)
+### 📚 Learning the Signs
+For the best results, refer to our project-specific guide:
+👉 **[ASL_CHEAT_SHEET.md](ASL_CHEAT_SHEET.md)**
 
-If you have a dataset, you can retrain the model:
+---
 
-```bash
-python main.py train
-```
-
-## Project Logic
-
-- **`src/`**: Contains the core Python modules for image processing, model architecture, and audio synthesis.
-- **`main.py`**: The main entry point for the application.
-- **`asl_classifier.h5`**: The pre-trained model weights.
+## 🔗 Visual Reference Links
+- [Stable ASL Alphabet Chart (Wikipedia)](https://upload.wikimedia.org/wikipedia/commons/e/e3/American_Sign_Language_Alphabet.svg)
+- [Official ASDC ASL Guide](https://www.deafchildren.org/resources/asl-alphabet/)

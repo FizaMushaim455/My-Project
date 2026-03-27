@@ -1,17 +1,10 @@
 """
-main.py — Unified CLI entry point for the ASL Sign-To-Speech project.
+main.py — ASL Sign-To-Speech (Developer: Fiza Mushaim | 2023-ag-9944)
 
-Commands
---------
-    python main.py train      Train the ASL classifier from the DATASET/
-    python main.py run        Real-time webcam recognition + Urdu speech
-
-Examples
---------
-    python main.py train --epochs 20 --plots
-    python main.py run --camera 0
-    python main.py run --no-speech
-    python main.py --help
+Usage:
+------
+    python main.py run        Launch the Real-time Geometric Recognition tool.
+    python main.py --help     Show this help message.
 """
 
 import argparse
@@ -19,64 +12,38 @@ import logging
 import sys
 from pathlib import Path
 
-from src.config.settings import CAMERA_INDEX, DATASET_PATH, EPOCHS, MODEL_PATH
 from src.utils.logging_config import setup_logging
 
 
-# ---------------------------------------------------------------------------
-# Sub-command handlers
-# ---------------------------------------------------------------------------
-
-
-def cmd_train(args: argparse.Namespace) -> None:
-    """Handle the 'train' sub-command."""
-    from src.pipelines.train_pipeline import run_training
-
-    plot_dir: Path | None = Path(".") if args.plots else None
-    run_training(
-        dataset_path=args.dataset,
-        model_output_path=args.model,
-        epochs=args.epochs,
-        plot_output_dir=plot_dir,
-    )
-
-
 def cmd_run(args: argparse.Namespace) -> None:
-    """Handle the 'run' sub-command."""
+    """Handle the 'run' command for high-accuracy geometric recognition."""
     from src.core.speech_synthesizer import SpeechSynthesizer
-    from src.pipelines.inference_pipeline import run_realtime
-
+    from src.pipelines.landmark_inference import run_landmark_inference
+    
     logger = logging.getLogger(__name__)
-    logger.info("Starting real-time ASL recognition. Press Esc to stop.")
+    logger.info("Starting real-time GEOMETRIC ASL recognition by Fiza Mushaim...")
 
-    recognised_text = run_realtime(
-        model_path=args.model,
+    recognised_text = run_landmark_inference(
         camera_index=args.camera,
     )
 
-    logger.info("Recognised text: '%s'", recognised_text)
+    logger.info("Final recognised text: '%s'", recognised_text)
 
     if recognised_text and not args.no_speech:
         synth = SpeechSynthesizer()
         urdu_text = synth.speak(recognised_text)
-        logger.info("Urdu output: '%s'", urdu_text)
+        logger.info("Urdu Speech Logic: '%s'", urdu_text)
     elif not recognised_text:
-        logger.warning("No ASL letters were detected.")
-    else:
-        logger.info("--no-speech flag set; skipping audio output.")
-
-
-# ---------------------------------------------------------------------------
-# Argument parser
-# ---------------------------------------------------------------------------
+        logger.warning("No ASL gestures were captured.")
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="main.py",
-        description="ASL Sign-To-Speech Conversion — production CLI",
+        description="ASL Sign-To-Speech Pro Engine by Fiza Mushaim",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
+    
     parser.add_argument(
         "--verbose",
         action="store_true",
@@ -85,66 +52,25 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # ---- train ----
-    train_parser = subparsers.add_parser(
-        "train",
-        help="Train the ASL CNN classifier.",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    train_parser.add_argument(
-        "--dataset",
-        type=Path,
-        default=DATASET_PATH,
-        help="Path to the DATASET/ root directory.",
-    )
-    train_parser.add_argument(
-        "--model",
-        type=Path,
-        default=MODEL_PATH,
-        help="Output path for the trained .h5 model.",
-    )
-    train_parser.add_argument(
-        "--epochs",
-        type=int,
-        default=EPOCHS,
-        help="Number of training epochs.",
-    )
-    train_parser.add_argument(
-        "--plots",
-        action="store_true",
-        help="Save training history plots to the current directory.",
-    )
-
     # ---- run ----
     run_parser = subparsers.add_parser(
         "run",
-        help="Launch real-time ASL recognition with Urdu speech output.",
+        help="Launch the high-accuracy ASL recognition (Geometric Engine).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-    run_parser.add_argument(
-        "--model",
-        type=Path,
-        default=MODEL_PATH,
-        help="Path to the pre-trained .h5 model.",
     )
     run_parser.add_argument(
         "--camera",
         type=int,
-        default=CAMERA_INDEX,
-        help="Camera device index (0 = default webcam).",
+        default=0,
+        help="Camera index (usually 0).",
     )
     run_parser.add_argument(
         "--no-speech",
         action="store_true",
-        help="Skip text-to-speech output (recognition only).",
+        help="Disable audio output.",
     )
 
     return parser
-
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 
 def main() -> None:
@@ -153,8 +79,8 @@ def main() -> None:
 
     setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
 
-    dispatch = {"train": cmd_train, "run": cmd_run}
-    dispatch[args.command](args)
+    if args.command == "run":
+        cmd_run(args)
 
 
 if __name__ == "__main__":

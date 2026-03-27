@@ -47,7 +47,11 @@ def preprocess_frame(
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     crop = gray[y1:y2, x1:x2]
 
-    blurred = cv2.GaussianBlur(crop, (5, 5), 2)
+    # Enhanced Contrast (CLAHE)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    enhanced = clahe.apply(crop)
+
+    blurred = cv2.GaussianBlur(enhanced, (5, 5), 2)
     adaptive = cv2.adaptiveThreshold(
         blurred,
         255,

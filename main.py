@@ -1,5 +1,5 @@
 """
-main.py — ASL Sign-To-Speech (Developer: Fiza Mushaim | 2023-ag-9944)
+main.py — ASL Sign-To-Speech (Developer: Fiza Mushaim | 2023-ag-9944 | Big Data Analysis)
 
 Usage:
 ------

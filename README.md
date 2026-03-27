@@ -4,8 +4,10 @@ A high-precision, real-time American Sign Language (ASL) recognition system that
 
 ---
 
-## 👨‍💻 Developed By: **Fiza Mushaim**
-## 📜 AG Number: **2023-ag-9944**
+### 👨‍💻 Developed By: **Fiza Mushaim**
+### 📜 AG Number: **2023-ag-9944**
+### 🎓 Subject: **Big Data Analysis (SE-506)**
+### 👨‍🏫 Teacher: **Sir Hassan Tariq**
 
 ---
 

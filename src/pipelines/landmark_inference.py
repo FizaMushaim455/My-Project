@@ -123,11 +123,14 @@ def run_landmark_inference(
             cv2.putText(frame, "[Esc] Finish | [Bksp] Undo | [C] Clear", (frame.shape[1] - 320, frame.shape[0] - 70), 
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 200, 200), 1, cv2.LINE_AA)
             
-            # 6. User Branding (Bottom Right - Prominent)
-            cv2.putText(frame, "Fiza Mushaim", (frame.shape[1] - 320, frame.shape[0] - 45), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 165, 255), 2, cv2.LINE_AA)
-            cv2.putText(frame, "2023-ag-9944", (frame.shape[1] - 320, frame.shape[0] - 20), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 165, 255), 1, cv2.LINE_AA)
+            # 6. User Branding (Bottom Right - Academic Focus)
+            text_x = frame.shape[1] - 350
+            cv2.putText(frame, "Fiza Mushaim | 2023-ag-9944", (text_x, frame.shape[0] - 80), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 165, 255), 2, cv2.LINE_AA)
+            cv2.putText(frame, "Subject: Big Data Analysis (SE-506)", (text_x, frame.shape[0] - 50), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1, cv2.LINE_AA)
+            cv2.putText(frame, "Teacher: Sir Hassan Tariq", (text_x, frame.shape[0] - 25), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1, cv2.LINE_AA)
 
             cv2.imshow(window_name, frame)
             
